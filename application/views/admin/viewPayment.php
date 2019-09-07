@@ -29,9 +29,9 @@
 ?>
 			<table border=1>
 			<tr>
-				<td>Restant du<br>mois precedent</td>
-				<td>D&eacute;passement<br>mois precedent</td>
-				<td>Mois courant du</td>
+				<td>Restant du<br><?php echo $prevMonthStr?></td>
+				<td>D&eacute;passement<br><?php echo $prevMonthStr?></td>
+				<td>Montant<br><?php echo $monthStr?></td>
 				<td>Montant total du</td>
 				<td>&nbsp;</td>
 				<td>Montant paye</td>
@@ -40,33 +40,35 @@
 				<td>Banque</td>
 				<td>Num. cheque</td>
 				<td>Statut</td>
-				<td>&nbsp;</td>
-				<td>Restant du</td>
 				<td><a class="button" href="<?php echo site_url()?>/payment/create/<?php echo $userId?>">Ajouter paiement</a></td>
+				<td>&nbsp;</td>
+				<td>Solde</td>
 			</tr>
 			<?php
 			$row=0;
+			
 			foreach ($payments[$userId] as $curPayment) {
 				if ($curPayment['status']==1) {
-					$staus = "En attente de r&eacute;ception";
+					$status = "En attente de r&eacute;ception";
 				} else if ($curPayment['status']==2) {
-					$staus = "Recu";
+					$status = "Recu";
 				} else if ($curPayment['status']==3) {
-					$staus = "Valid&eacute;";
+					$status = "Valid&eacute;";
 				} else if ($curPayment['status']==4) {
-					$staus = "Annul&eacute;";
+					$status = "Annul&eacute;";
 				} else {
-					$staus = "-";
+					$status = "-";
 				}
 				echo "<tr>";
 				if ($row==0) {
-					echo "<td rowspan=".sizeof($payments[$userId]).">".$costTotal[$userId]['debtPrev']."</td>		
-   						<td rowspan=".sizeof($payments[$userId]).">".$costTotal[$userId]['sum']['depassementPrev']."</td>		
-   						<td rowspan=".sizeof($payments[$userId]).">".$costTotal[$userId]['sum']['cost']."</td>		
-   						<td rowspan=".sizeof($payments[$userId])."><b>".$costTotal[$userId]['sum']['total']."</b></td>		
-   						<td rowspan=".sizeof($payments[$userId]).">&nbsp;</td>";
+					echo "<td rowspan=".sizeof($curPayment).">".$bill[$userId]['restToPay']."</td>		
+   						<td rowspan=".sizeof($curPayment).">".$bill[$userId]['children']['total']['costDep']."</td>		
+   						<td rowspan=".sizeof($curPayment).">".$bill[$userId]['children']['total']['costResa']."</td>		
+   						<td rowspan=".sizeof($curPayment)."><b>".$bill[$userId]['total']."</b></td>		
+   						<td rowspan=".sizeof($curPayment).">&nbsp;</td>";
 				}
-				if ($curPayment['bank_id'] == "-") {
+				
+				if ($curPayment['bank_id'] == 0) {
 				    $bank = "-";
 				} else {
 				    $bankId = $curPayment['bank_id'];
@@ -77,13 +79,16 @@
 						<td>".$curPayment["type"]."</td>
 						<td>".$bank."</td>
 						<td>".$curPayment["cheque_Num"]."</td>
-   						<td>".$staus."</td>";
-				echo "<td>&nbsp;</td>";
-				if ($row==0) {
-					echo "<td rowspan=".sizeof($payments[$userId]).">".$costTotal[$userId]['debt']."</td>";
-				}
+   						<td>".$status."</td>";
 				if (isset($curPayment["id"])) {
 					echo "<td><a class='button' href='".site_url()."/payment/update/".$curPayment["id"]."/1'>Modifier</a></td>\n";
+				} else {
+					echo "<td>&nbsp;</td>";
+				}
+				echo "<td>&nbsp;</td>";
+				if ($row==0) {
+					$solde = $bill[$userId]['total'] - $totalPayments[$userId];
+					echo "<td rowspan=".sizeof($curPayment)."><b>".$solde."</b></td>";
 				}
 				echo "</tr>";
 				$row++;

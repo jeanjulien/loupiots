@@ -1,4 +1,20 @@
 *********************************
+V2019.08
+*********************************
+Feature:
+--------
+- Année drop down liste unification
+- Refactoring de la session "reglement" dans la page user
+	Encours du mois cours
+	Facture du mois M-1 = resa M-1 + depassement M-2 + debit M-2
+- Possibilité d'ajout d'un paiement que sur le mois courant
+- Modification des paiements interdit aprés M-2
+- Ajout d'un nouveau mode de calcul du debit ajout d'une table debt + code associé
+	debit M-2 = Debit M-3 + cout resa M-2 - paiement M-2 
+- Suppression de la table cost + code associé
+- Ajout dee la possibilité pour l'administrateur d'ajouter un type de paiement de régularisation
+
+*********************************
 V2016.05
 *********************************
 Feature:
@@ -28,7 +44,7 @@ Feature:
 - Page de visualisation de l'historique des paimements (avec des bug!!)
 - Changement des informations des contacts
 - Ajout d'un statut "Animateur"
-	Parent:
+	Utilisateur:
 		* Declarer des reservations
 		* Voir/imprimer son calendrier
 		* Ajouter/modifier ses enfants

@@ -290,7 +290,7 @@ class report extends CI_Controller {
     }
     
     public function paymentHistory($userId = null, $year = null, $month = null) {
-        //$this->output->enable_profiler(TRUE);
+        $this->output->enable_profiler(TRUE);
         
         //check access rights
         $data['loggedId'] = $this->session->userdata('id');
@@ -378,7 +378,7 @@ class report extends CI_Controller {
     }
     
     public function balance() {
-        //$this->output->enable_profiler(TRUE);
+//        $this->output->enable_profiler(TRUE);
         
         $data['title'] = "Balance comptable";
         
@@ -420,10 +420,11 @@ class report extends CI_Controller {
         
         //reservations dues
         //cout des resas du mois courant
-        $resas= $this->Resa_model->get_resa_where(array('YEAR(date)' => $year, 'MONTH(date)' => $month, 'resa_type !=' => 3 ));
+        $resas= $this->Resa_model->get_full_resa_where(array('YEAR(date)' => $year, 'MONTH(date)' => $month, 'resa_type !=' => 3 ));
+
         $data['resa'] = $this->Resa_model->get_cost($resas);
         //cout des depassemants du mois precedant
-        $depassementPrev= $this->Resa_model->get_resa_where(array('YEAR(date)' => $prevYear, 'MONTH(date)' => $prevMonth, 'resa_type' => 3 ));
+        $depassementPrev= $this->Resa_model->get_full_resa_where(array('YEAR(date)' => $prevYear, 'MONTH(date)' => $prevMonth, 'resa_type' => 3 ));
         $data['depassementPrev'] = $this->Resa_model->get_cost($depassementPrev);
         
         $data["totalResa"]= $data['depassementPrev']['total'] + $data['resa']['total'] ;
@@ -437,9 +438,6 @@ class report extends CI_Controller {
         }
         
         $data["totaldu"]= $data['debt'] + $data["rest"];
-        
-        //print_r($data);
-        
         
         $this->load->view('templates/header', $data);
         $this->load->view('report/viewBalance', $data);

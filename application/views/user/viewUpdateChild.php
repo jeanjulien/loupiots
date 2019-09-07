@@ -15,7 +15,7 @@
 <label for="birth">Date de naissance</label><br>
 	<?php echo form_dropdown('day', generate_options(1,31), $day, 'class="InputSelect"'); ?>
 	<?php echo form_dropdown('month', generate_options(1,12,'callback_month'), $month, 'class="InputSelect"'); ?>
-	<?php echo form_dropdown('year', generate_options(2000,date('Y')), $year, 'class="InputSelect"'); ?>
+	<?php echo form_dropdown('year', generate_options(date('Y')+1,2010), $year, 'class="InputSelect"'); ?>
 
 <span> <?php
 if(validation_errors()) {

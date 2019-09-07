@@ -8,6 +8,7 @@ class payment extends CI_Controller {
 		$this->load->model('Payment_model');
 		$this->load->model('Bank_model');
 		$this->load->model('Cost_model');
+//		$this->load->model('Resa_model');
 		$this->load->model('Child_model');
 		$this->load->helper('url');
 		$this->load->helper('dob'); 
@@ -15,7 +16,11 @@ class payment extends CI_Controller {
 		$this->load->library('form_validation');
 		
 		$this->payment_types = array('Cheque' => 'Cheque', 'Especes' => 'Especes', 'Virement' => 'Virement');
+		if ($this->session->userdata('privilege') >=2 ) {
+			$this->payment_types['Regularisation'] = 'Regularisation';
+		}
 		$this->banks = $this->Bank_model->get_option_banks();
+
 		$this->payment_status = array(1 => 'En attente de r&eacute;ception');
 		if ($this->session->userdata('privilege') >=2 ) {
 			$this->payment_status[2] = 'Recu';
@@ -40,6 +45,14 @@ class payment extends CI_Controller {
 		} else {
 			$data['userId'] = $this->input->post('user_id');
 		}
+		$year = $this->input->post('year');
+		$month = $this->input->post('month');
+		if ($month=="" || $year=="") {
+			$year=date("Y");
+			$month=date("n");
+		}
+		$data['month'] = $month;
+		$data['year'] = $year;
 		
 		if (!isset($data['loggedId']) || !is_numeric($data['loggedId']) ) {
 			show_404();
@@ -81,7 +94,7 @@ class payment extends CI_Controller {
 		}
 		
 	}
-
+/*
 	public function update($paymentId='',$fromReport=0) {
 		//$this->output->enable_profiler(TRUE);
 		
@@ -173,6 +186,82 @@ class payment extends CI_Controller {
 		}
 		
 	}
+*/
+
+	public function update($paymentId='',$fromReport=0) {
+		$this->output->enable_profiler(TRUE);
+		
+		$data['title'] = 'Modifier un paiement';
+
+		$data['payment'] = $this->Payment_model->get_payment($paymentId);
+		$previousPayment=$data['payment'];
+		
+		$data['payment_types'] = $this->payment_types;
+		$data['payment_status'] = $this->payment_status;
+		$data['banques'] = $this->banks;
+
+		$year = $this->input->post('year');
+		$month = $this->input->post('month');
+		if ($month=="" || $year=="") {
+			$year=date("Y");
+			$month=date("n");
+		}
+		$data['month'] = $month;
+		$data['year'] = $year;
+		
+		$data['users'] = $this->User_model->get_users();
+		$data['fromReport'] = $fromReport;
+
+		//check access rights
+		$data['loggedId']=$this->session->userdata('id');
+		if ( sizeof($_POST)==0 ) {
+			$data['userId'] = $data['payment']['user_id'];
+		} else {
+			$data['userId'] = $this->input->post('user_id');
+		}
+		
+		if (!isset($data['loggedId']) || !is_numeric($data['loggedId']) ) {
+			show_404();
+		}
+		$data['loggedPrivilege'] = $this->session->userdata('privilege');
+		if ($data['loggedPrivilege'] < 2 && $data['loggedId']!=$data['userId']) {
+			show_404();
+		}
+
+		$data['loggedPrivilege'] = $this->session->userdata('privilege');
+		if ($data['loggedPrivilege'] >= 2) {
+			$data['usersOption'] = $this->User_model->get_option_users();
+			$selId = $this->input->post('selId');
+		} else {
+			$data['usersOption'] = $this->User_model->get_option_users($data['loggedId']);
+		}
+		
+		$this->form_validation->set_rules('amount', 'Montant', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('type', 'Type', 'trim|required|xss_clean');
+		$this->form_validation->set_rules('month', 'Mois payé', 'numeric');
+		
+		if ($this->form_validation->run() !== FALSE) {
+			$payment = $this->Payment_model->setPaymentFromPostData($_POST);
+			$this->Payment_model->update($paymentId, $payment);
+		}
+
+		if ( sizeof($_POST)==0 ) {
+			$this->load->view('templates/header', $data);
+			$this->load->view('user/viewUpdatePayment', $data);
+			$this->load->view('templates/footer');
+		} else {
+			if ( $fromReport==1 ) {
+				$data['userId'] = $this->input->post('user_id');
+				$year = $this->input->post('year');
+				$month = $this->input->post('month');
+				
+				redirect('payment/report?year='.$year.'&month='.$month, 'refresh');
+			} else {
+				redirect('user/'.$data['userId'].'/'.$data['payment']['year'].'/'.$data['payment']['month'], 'refresh');
+			}
+		}
+		
+	}
 	
 	public function report() {
 //		$this->output->enable_profiler(TRUE);
@@ -190,6 +279,12 @@ class payment extends CI_Controller {
 		//initialisation
 		$year = $this->input->get_post('year');
 		$month = $this->input->get_post('month');
+		$monthPrevBill = date('n', mktime(0, 0, 0, $month-1, 1, $year)); //mois precedent le mois facturé
+		$yearPrevBill = date('Y', mktime(0, 0, 0, $month-1, 1, $year));
+		setlocale(LC_ALL, 'fr_FR','fra');
+		$data['monthStr']=strftime("%B", mktime(0, 0, 0, $month, 10, $year));
+		$data['prevMonthStr']=strftime("%B", mktime(0, 0, 0, $month-1, 10, $year));
+		
 		$onlyActive = $this->input->get_post('onlyActive');
 		if ($month=="" || $year=="") {
 			$year=date("Y");
@@ -201,24 +296,31 @@ class payment extends CI_Controller {
 		$data['onlyActive'] = $onlyActive;
 		
 		$data['title'] = 'Liste des paiements';
-
 		$data['users'] = $this->Child_model->get_fullChildren($onlyActive);
-		
-		$data["payments"] = array();
 		$data['banks'] = $this->banks;
 		
 		foreach ($data['users'] as $userId => $user) {
-		    $data['costTotal'][$userId] = $this->Cost_model->getCost($year, $month, $userId, $data['users'][$userId]['children']);
-//		    $data["payments"][$userId] = $data['costTotal'][$userId]["payments"];
-		    $data["payments"][$userId] = array();
-			
-			if (sizeof($data["payments"][$userId])==0) {
-				$data["payments"][$userId][0]["status"]="-";
+			$data['bill'][$userId] = $this->Resa_model->getBill($userId, $year, $month); 
+
+			$data["payments"][$userId] = array();
+			$userPayments = $this->Payment_model->get_payment_where(array('user_id' => $userId, 'YEAR(month_paided)' => $year, 'MONTH(month_paided)' => $month ));
+		    
+			$data["totalPayments"][$userId] = 0;
+			if (sizeof($userPayments)==0) {
+  				$data["payments"][$userId][0]["status"]="-";
 				$data["payments"][$userId][0]["amount"]="-";
    				$data["payments"][$userId][0]["payment_date"]="-";
 				$data["payments"][$userId][0]["type"]="-";
 				$data["payments"][$userId][0]["bank_id"]="-";
 				$data["payments"][$userId][0]["cheque_Num"]="-";
+
+			} else {
+				foreach ($userPayments as $curPayment) {
+					$datePayment = strtotime($curPayment['month_paided']);
+					$curPayment['datePaid'] = strftime("%B %Y", $datePayment);
+					$data["payments"][$userId][] = $curPayment;
+					$data["totalPayments"][$userId] += $curPayment['amount'];
+				}
 			}
 		}
 		

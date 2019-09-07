@@ -48,20 +48,7 @@ $(document).ready(function() {
 					success : function(result) {
 						var bill = jQuery.parseJSON(result);
 						$(".bill").html(bill);
-/*						for (var key in bill) {
-							if (key=="sum") {
-								$(".cost").html(bill.sum.resa);
-								$(".totalDepassement").html(bill.sum.depassement);
-								$(".total").html(bill.sum.total);
-							} else if (key=="children") {
-								for (var childId in cost.children) {
-									$("."+childId+"-cost").html(cost.children[childId].resaStr);
-			                        $("."+childId+"-costDepassement").html(bill.children[childId].depassementStr);
-									$("."+childId+"-total").html(bill.children[childId].total);
-								}
-							}
-						}
-*/					}
+					}
 				});
 			}
 		});

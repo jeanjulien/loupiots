@@ -10,6 +10,7 @@ class Resa_model extends CI_Model {
 		$this->load->database();
 		$this->load->model('Period_model');
 		$this->load->model('Payment_model');
+		$this->load->model('Balance_model');
 	}
 		
 	/**
@@ -171,36 +172,33 @@ class Resa_model extends CI_Model {
 	}
 
 	public function get_cost($resas) {
-		$costNum=array();
-		$periodPrices = $this->Period_model->getPeriodPrices();
-		$cost["periodPrices"]=$periodPrices;
+		$periodPrices=array();
 		foreach ($resas as $resa) {
-		    $resaId = $resa['id'];
-			if (isset($resa['price'])) {
-				$periodPrice = $resa['price'];
+			if($resa['resa_type'] == 3) {
+				$resaPrice = LOUP_DEPASSEMENT_PRICE;
 			} else {
-				$periodId = $resa["period_id"];
-				$periodPrice = $periodPrices[$periodId];
+				$resaPrice = $resa['price'];
 			}
-			if ($resa["resa_type"]==3 && $resa["date"] > LOUP_DEPASSEMENT_INITIAL_DATE) {
-				$periodPrice = LOUP_DEPASSEMENT_PRICE;
-			}
-			if (isset($costNum[$periodPrice])) {
-				$numResa = sizeof($costNum[$periodPrice]);
-				$costNum[$periodPrice][$resaId]=$numResa+1;
+			if (!array_key_exists($resaPrice, $periodPrices)) {
+				$periodPrices[$resaPrice] = 1;
 			} else {
-				$costNum[$periodPrice][$resaId]=1;
+				$periodPrices[$resaPrice] += 1;
 			}
 		}
-		$separator="";
-		$cost["str"]="&nbsp;";
-		$cost["total"]=0;
-		foreach ($costNum as $price=>$costNum) {
-			$cost["str"] = $cost["str"].$separator.$price."x".sizeof($costNum);
-			$separator=" + ";
-			$cost["total"] += $price*sizeof($costNum);
+		
+		$cost["str"] = "";
+		$cost["total"] = 0;
+		foreach($periodPrices as $price => $number) {
+			if ($cost["str"] == "") {
+				$cost["str"] = $price."x".$number;
+			} else {
+				$cost["str"] += " + ".$price."x".$number;
+			}
+			$cost["total"] += $price*$number;
 		}
+		$cost["perioarray"] = $periodPrices;
 		return $cost;
+
 	}
 	
 	public function getBill($userId, $year, $month) {
@@ -209,15 +207,10 @@ class Resa_model extends CI_Model {
 		$monthPrevBill = date('n', mktime(0, 0, 0, $month-2, 1, $year)); //mois precedent le mois facturé
 		$yearPrevBill = date('Y', mktime(0, 0, 0, $month-2, 1, $year));
 		
-		$totalPayment = $this->Payment_model->get_total_payment_where(array('user_id' => $userId, ));
-		$bill['totalPayment'] = $totalPayment['amount'];
-		$bill['totalCost'] = $this->Resa_model->getTotalCost($userId);
-		$bill['restToPay'] = $bill['totalCost'] - $bill['totalPayment'];
-		
 		$children = $this->db->get_where('child', array('user_id' => $userId, 'is_active' => true))->result_array();
 		$bill['children']['total']['costResa'] = 0;
 		$bill['children']['total']['costDep'] = 0;
-		$bill['total'] = $bill['restToPay'];
+		$bill['total'] = 0;
 		foreach ($children as $child) {
 			$childNum=$child['id'];
 			//Resa du mois facturé
@@ -245,6 +238,24 @@ class Resa_model extends CI_Model {
 			
 			$bill['children'][$childNum]['sum'] = $childResaPrice + $childDepPrice;
 			$bill['total'] += $bill['children'][$childNum]['sum'];
+			
+			// balance calculation
+			//payment Month-1
+			$totalPayment = $this->Payment_model->get_total_payment_where(array('user_id' => $userId, 'YEAR(month_paided)' => $yearBilled, 'MONTH(month_paided)' => $monthBilled ));
+			$bill['totalPayment'] = $totalPayment['amount'];
+			//balance Month-2
+			$bill['balanceM2'] = 0;
+			$balanceM2 = $this->Balance_model->get_balance_where_unique(array('user_id' => $userId, 'YEAR(date)' => $yearPrevBill, 'MONTH(date)' => $monthPrevBill ));
+		    if (isset($balanceM2['debt'])) {
+				$bill['balanceM2'] = $balanceM2['debt'];
+			}			
+			//resa Month -1
+			$bill['resaM1'] = $bill['children']['total']['costResa'];
+			//dep Month -2
+			$bill['depM2'] = $bill['children']['total']['costDep'];
+			
+			$bill['restToPay'] = round($bill['totalPayment'] + $bill['balanceM2'] - $bill['depM2'] - $bill['resaM1']);
+			
 		}
 		
 		return $bill;

@@ -3,20 +3,21 @@
 </div>
 
 <?php
-$lastCloseFileName = "lastVisit.txt";
-if (!file_exists($lastCloseFileName)) {
-	touch($lastCloseFileName);
-}
-
-$lastCloseDate=filemtime($lastCloseFileName);
-//echo "La date de derniere fermeture etait ".date("l d M Y H:i:s.", $lastCloseDate)." ".$lastCloseDate."</br>";
-$nextCloseDate=date(strtotime('next thursday', $lastCloseDate));
-
-//echo "Prochaine fermeture prevue : ". date('l d M Y H:i:s', $nextCloseDate) ." ". $nextCloseDate ."</br>";
-
 $now=date(time());
 //echo "Now:       ". date('l d M Y H:i:s') ." ".date(time())." ".$now."</br>";
 
+//*****************************************//
+// Validation automatique des reservations //
+//*****************************************//
+$lastCloseFileName = "lastCloseResa.txt";
+if (!file_exists($lastCloseFileName)) {
+	touch($lastCloseFileName);
+}
+$lastCloseDate=filemtime($lastCloseFileName);
+echo "La date de derniere fermeture etait ".date("l d M Y H:i:s.", $lastCloseDate)." ".$lastCloseDate."</br>";
+$nextCloseDate=date(strtotime('next thursday', $lastCloseDate));
+
+//echo "Prochaine fermeture prevue : ". date('l d M Y H:i:s', $nextCloseDate) ." ". $nextCloseDate ."</br>";
 //echo "<br>des que qq'un se connecte apres le ".date('l d M Y H:i:s', $nextCloseDate)."<br>";
 if ($now > $nextCloseDate) {
 	$nextCloseDate=date(strtotime('next thursday', $now));
@@ -28,12 +29,38 @@ if ($now > $nextCloseDate) {
 //	echo "Nouvelle fermeture prevue : ". date('l d M Y H:i:s', $nextCloseDate) ." ". $nextCloseDate ."</br>";
 	touch($lastCloseFileName);
 	file_put_contents($lastCloseFileName, $closeDate);
-	
-	//si nouveau mois verouiller le debit
-	//si ligne cost du mois est vide => c'est un nouveau mois.
-	//current month
-
 }
+
+//*****************************************//
+// Enregistrement automatique du debit     //
+//*****************************************//
+$lastBalanceFileName = "lastBalanceMonth.txt";
+if (!file_exists($lastBalanceFileName)) {
+	touch($lastBalanceFileName);
+	echo "creation</br>";
+}
+
+// fake to change the date of the file
+$time = time() - 3600*24*15;
+if (!touch('lastBalanceMonth.txt', $time)) {
+    echo 'Whoops, une erreur est survenue...</br>';
+}
+
+$lastBalanceDate=filemtime($lastBalanceFileName);
+
+echo "now ".date('l d M Y H:i:s', $now)." ".$now."</br>";
+echo "lastBalance ".date('l d M Y H:i:s', $lastBalanceDate)." ".$lastBalanceDate."</br>";
+
+if ($now > $lastBalanceDate && date("n", $now) != date("n", $lastBalanceDate)) {
+	echo "mois different</br>";
+//	$sql = $this->Balance_model->updateAllBalance();
+//	echo $sql."<br>";	
+	
+	touch($lastBalanceFileName);
+	file_put_contents($lastBalanceFileName, date('d M Y', $now));
+	
+}
+
 
 ?>
 

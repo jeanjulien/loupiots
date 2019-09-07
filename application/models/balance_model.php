@@ -5,8 +5,6 @@ class Balance_model extends CI_Model {
 	
 	public function __construct() {
 		$this->load->database();
-		$this->load->model('Resa_model');
-		$this->load->model('Payment_model');
 	}
 		
 	function create($balance) {
@@ -29,6 +27,11 @@ class Balance_model extends CI_Model {
 	public function get_balance_where($where) {
 		$query = $this->db->get_where($this->balance_table, $where);
 		return $query->result_array();
+	}
+	
+	public function get_balance_where_unique($where) {
+		$query = $this->db->get_where($this->balance_table, $where);
+		return $query->row_array();
 	}
 	
 	function delete($id = FALSE) {

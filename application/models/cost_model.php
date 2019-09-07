@@ -74,8 +74,6 @@ class Cost_model extends CI_Model {
 		} else {
 			$this->create($cost);
 		}
-//$return = $this->db->last_query();
-//$return = $costCurrent;
 		
 		//Update cost next month if exists
 		$nextMonth=$month+1;
@@ -88,7 +86,6 @@ class Cost_model extends CI_Model {
 		if($DBNextCost) {
 			$this->persistCost($nextMonth, $nextYear, $userId);
 		}
-//return $return;
 	}
 	
 	function getCost($year, $month, $userId) {
@@ -187,8 +184,11 @@ class Cost_model extends CI_Model {
 		$balance['sum']['total'] = $balance['sum']['resa'] + $balance['sum']['depassement'];
 		
 		//restant du du mois courant-2
-		$balance['debt'] = current($this->Balance_model->get_balance_where(array('user_id' => $userId, 'YEAR(month)' => $year, 'MONTH(month)' => $month-2 )));
-		
+		$balance['debt'] = 0;
+		$balance = $this->Balance_model->get_balance_where(array('user_id' => $userId, 'YEAR(month)' => $year, 'MONTH(month)' => $month-2 ));
+		if (sizeof($resas[$childNum])>0) {
+			$balance['debt'] = current($balance);
+		}
 		
 		return $balance;
 	}

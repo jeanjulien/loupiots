@@ -30,9 +30,18 @@
 		</span>
     				
     	<label for="paymentMonth">Mois pay&eacute;</label>
+		<?php 
+			setlocale(LC_ALL, 'fr_FR','fra');
+			$monthStr=strftime("%B", mktime(0, 0, 0, $payment['month'], 10, $payment['year']));
+			echo "$monthStr $year" ;
+		?>
+		<input type="hidden" name="month" value="<?php echo $payment['month'] ?>" />
+		<input type="hidden" name="year" value="<?php echo $payment['year'] ?>" />
+		
+<!-- 	
    		<?php echo form_dropdown('month', generate_options_array(1,12,'callback_month'), $payment['month'], 'class="InputSelect"'); ?>
    		<?php echo form_dropdown('year', generate_options_array(date('Y')+1,2010), $payment['year'], 'class="InputSelect"');?>
-
+-->
 		<br/>
 		
 		<label for="class">Statut</label>

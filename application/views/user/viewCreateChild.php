@@ -16,7 +16,7 @@
 		<label for="birth">Date de naissance</label><br>
    		<select name="day"><option value="0">Jour:</option><?php echo generate_options(1,31)?></select>
 		<select name="month"><option value="0">Mois:</option><?php echo generate_options(1,12,'callback_month')?></select>
-   		<select name="year"><option value="0">Annee:</option><?php echo generate_options(2015,2000)?></select>
+   		<select name="year"><option value="0">Annee:</option><?php echo generate_options(date("Y")+1,2010)?></select>
 	
 		<span>
 		<?php

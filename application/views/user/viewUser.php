@@ -109,8 +109,6 @@
 <section class="container_left">
 	<h3>Facture <?php echo $getData['month-1Str'] ?></h3>
 	
-<?php //print_r($bill) ; ?>
-	
 	<table border=1>
 			<tr>
 				<td>&nbsp;</td>
@@ -142,24 +140,19 @@
 					<td><b><?php echo $bill['total'] ?></b></td>
 				</tr>
 		</table>
-		<i>Le restant du ne prend pas en compte les paiements non validés</i>
+		<i>Le restant du ne prend pas en compte les paiements non validés.</br>
+		Ils seront pris en compte au mois de leur validation.</i>
 	</section>
 
 <section class="container_rigth">
 	<h3>Reglement</h3>
-	<?php 
-		if ($getData['curMonthYear'] == $getData['viewMonthYear']) {
-			echo '<a class="button" href="'.site_url().'/payment/create/'.$user['id'].'">Ajouter paiement</a>';
-		}
-	?>
-	<a class="button" href="<?php echo site_url()?>/report/paymentHistory/<?php echo $user['id']."/".$getData['year']."/".$getData['month']?>">Voir l'historique</a>
-	
 	<table border=1>
 		<tr>
-			<td>Date de Paiement</td>
+			<td>Mois pay&eacute;</td>
 			<td>Montant</td>
 			<td>Type</td>
 			<td>Statut</td>
+			<td>Date de Validation</td>
 			<td>&nbsp;</td>
 		</tr>
 		<?php 
@@ -175,19 +168,26 @@
 			} else {
 				$staus = "En attente de r&eacute;ception";
 			}
+			
 			echo "	
 				<tr>
-					<td>".$curPayment['payment_date']."</td>
+					<td>".$curPayment['datePaid']."</td>
 					<td>".$curPayment['amount']."</td>
 					<td>".$curPayment["type"]."</td>
 					<td>".$staus."</td>
+					<td>".$curPayment["payment_date"]."</td>
 					<td><a class='button' href='".site_url()."/payment/update/".$curPayment["id"]."'>Modifier</a></td>\n
 				</tr>";
 		}
 		?>
 	</table>
 		
-		
+	<?php 
+		if ($getData['curMonthYear'] == $getData['viewMonthYear']) {
+			echo '<a class="button" href="'.site_url().'/payment/create/'.$user['id']."/".$getData['year']."/".$getData['month'].'">Ajouter paiement</a>';
+		}
+	?>
+	<a class="button" href="<?php echo site_url()?>/report/paymentHistory/<?php echo $user['id']."/".$getData['year']."/".$getData['month']?>">Voir l'historique</a>		
 	
 </section>
 <?php 
