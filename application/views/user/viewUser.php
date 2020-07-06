@@ -134,10 +134,10 @@
 			?>
 				<tr>
 					<td>Total</td>
-					<td><?php echo $bill['restToPay'] ?></td>
+					<td><?php echo $balance ?></td>
 					<td><?php echo $bill['children']['total']['costDep'] ?></td>
 					<td><?php echo $bill['children']['total']['costResa'] ?></td>
-					<td><b><?php echo $bill['total'] ?></b></td>
+					<td><b><?php echo $bill['totalCost'] ?></b></td>
 				</tr>
 		</table>
 		<i>Le restant du ne prend pas en compte les paiements non validés.</br>
@@ -187,7 +187,7 @@
 			echo '<a class="button" href="'.site_url().'/payment/create/'.$user['id']."/".$getData['year']."/".$getData['month'].'">Ajouter paiement</a>';
 		}
 	?>
-	<a class="button" href="<?php echo site_url()?>/report/paymentHistory/<?php echo $user['id']."/".$getData['year']."/".$getData['month']?>">Voir l'historique</a>		
+	<a class="button" href="<?php echo site_url()?>/payment/userPaymentHistory/<?php echo $user['id']."/".$getData['year']."/".$getData['month']?>">Voir l'historique</a>		
 	
 </section>
 <?php 

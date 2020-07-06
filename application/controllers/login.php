@@ -11,7 +11,6 @@ class login extends CI_Controller {
 
 		$this->load->model('User_model');
 		$this->load->model('Resa_model');
-		$this->load->model('Balance_model');
 		$this->load->library('form_validation');
 
 		$data['title'] = 'Login';

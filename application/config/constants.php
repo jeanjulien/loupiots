@@ -8,7 +8,7 @@
 | These constants are specific to creche loupiot
 |
 */
-define('LOUP_DEPASSEMENT_PRICE', '1.7');
+define('LOUP_DEPASSEMENT_PRICE', '1.6');
 define('LOUP_DEPASSEMENT_INITIAL_DATE', '2013-10-01');
 
 /*

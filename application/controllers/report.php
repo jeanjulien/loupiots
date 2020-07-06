@@ -288,7 +288,7 @@ class report extends CI_Controller {
         $this->load->view('templates/footer');
         
     }
-    
+/*    
     public function paymentHistory($userId = null, $year = null, $month = null) {
         $this->output->enable_profiler(TRUE);
         
@@ -342,7 +342,7 @@ class report extends CI_Controller {
         $this->load->view('report/viewFamilyPayment', $data);
         $this->load->view('templates/footer');
     }
-    
+*/    
     public function cheque() {
         //$this->output->enable_profiler(TRUE);
         

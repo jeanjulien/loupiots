@@ -145,7 +145,8 @@ class Cost_model extends CI_Model {
 
 		return $cost;
 	}
-	
+
+/*	
 	public function getBalance($year, $month, $userId) {
 		$balance['sum']['resa'] = 0;
 		$balance['sum']['depassement'] = 0;
@@ -192,7 +193,7 @@ class Cost_model extends CI_Model {
 		
 		return $balance;
 	}
-	
+*/	
 	
 }
 ?>

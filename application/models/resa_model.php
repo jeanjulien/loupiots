@@ -210,7 +210,7 @@ class Resa_model extends CI_Model {
 		$children = $this->db->get_where('child', array('user_id' => $userId, 'is_active' => true))->result_array();
 		$bill['children']['total']['costResa'] = 0;
 		$bill['children']['total']['costDep'] = 0;
-		$bill['total'] = 0;
+		$bill['totalCost'] = 0;
 		foreach ($children as $child) {
 			$childNum=$child['id'];
 			//Resa du mois facturé
@@ -237,24 +237,25 @@ class Resa_model extends CI_Model {
 			}
 			
 			$bill['children'][$childNum]['sum'] = $childResaPrice + $childDepPrice;
-			$bill['total'] += $bill['children'][$childNum]['sum'];
+			$bill['totalCost'] += $bill['children'][$childNum]['sum'];
 			
 			// balance calculation
 			//payment Month-1
-			$totalPayment = $this->Payment_model->get_total_payment_where(array('user_id' => $userId, 'YEAR(month_paided)' => $yearBilled, 'MONTH(month_paided)' => $monthBilled ));
-			$bill['totalPayment'] = $totalPayment['amount'];
+//			$totalPayment = $this->Payment_model->get_total_payment_where(array('user_id' => $userId, 'YEAR(month_paided)' => $yearBilled, 'MONTH(month_paided)' => $monthBilled ));
+//			$bill['totalPayment'] = $totalPayment['amount'];
 			//balance Month-2
-			$bill['balanceM2'] = 0;
-			$balanceM2 = $this->Balance_model->get_balance_where_unique(array('user_id' => $userId, 'YEAR(date)' => $yearPrevBill, 'MONTH(date)' => $monthPrevBill ));
-		    if (isset($balanceM2['debt'])) {
-				$bill['balanceM2'] = $balanceM2['debt'];
-			}			
+//			$bill['balanceM2'] = 0;
+//			$balanceM2 = $this->Balance_model->get_balance_where_unique(array('user_id' => $userId, 'YEAR(date)' => $yearPrevBill, 'MONTH(date)' => $monthPrevBill ));
+//		    if (isset($balanceM2['debt'])) {
+//				$bill['balanceM2'] = $balanceM2['debt'];
+//			}
+//			$bill['total'] += $bill['balanceM2'];		
 			//resa Month -1
-			$bill['resaM1'] = $bill['children']['total']['costResa'];
+//			$bill['resaM1'] = $bill['children']['total']['costResa'];
 			//dep Month -2
-			$bill['depM2'] = $bill['children']['total']['costDep'];
+//			$bill['depM2'] = $bill['children']['total']['costDep'];
 			
-			$bill['restToPay'] = round($bill['totalPayment'] + $bill['balanceM2'] - $bill['depM2'] - $bill['resaM1']);
+//			$bill['restToPay'] = round($bill['totalPayment'] + $bill['balanceM2'] - $bill['depM2'] - $bill['resaM1']);
 			
 		}
 		

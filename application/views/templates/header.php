@@ -7,6 +7,8 @@ header('Content-type: text/html; charset=iso-8859-1');
 <head>
 	<title><?php echo $title ?> - Garderie de Laval</title>
 	
+	<link rel="shortcut icon" href="<?php echo base_url()?>resource/img/favicon.ico">
+	
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url()?>resource/css/calendar.css"/>
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url()?>resource/css/styles.css"/>
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url()?>resource/css/form.css"/>

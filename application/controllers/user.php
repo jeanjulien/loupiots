@@ -8,6 +8,7 @@ class user extends CI_Controller {
 		$this->load->model('User_model');
 		$this->load->model('Period_model');
 		$this->load->model('Payment_model');
+		$this->load->model('Balance_model');
 		$this->load->model('Cost_model');
 		$this->load->helper('url');
 		$this->load->helper('dob'); 
@@ -102,7 +103,7 @@ class user extends CI_Controller {
 	}
 	
 	public function viewUser($id = null, $year = null, $month = null) {
-//		$this->output->enable_profiler(TRUE);
+		$this->output->enable_profiler(TRUE);
 			
 		if (!isset($id) || ($this->session->userdata('id')!=$id && $this->session->userdata('privilege')<2)) {
 			show_404();
@@ -148,7 +149,10 @@ class user extends CI_Controller {
 			$curPayment['datePaid'] = strftime("%B %Y", $datePayment);
 			$data['payment'][] = $curPayment;
 		}
-		$data['bill'] = $this->Resa_model->getBill($data['userId'], $year, $month); 
+		$data['bill'] = $this->Resa_model->getBill($data['userId'], $year, $month);
+
+		$balanceDate = date( "Y-m-d", strtotime( "$year-$month-02 -2 month" ));
+		$data['balance'] = $this->Balance_model->get_balance_where(array('user_id' => $data['userId'], 'YEAR(date)' => date( "Y", strtotime( "$year-$month-02 -2 month" )), 'MONTH(date)' => date( "m", strtotime( "$year-$month-02 -2 month" )))); 
 
 		$this->load->view('templates/header', $data);
 		$this->load->view('user/viewUser', $data);

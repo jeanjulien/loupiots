@@ -4,7 +4,7 @@
 
 <?php $this->load->helper('dob'); ?>
 
-	<form class='form' method='post' action='<?php echo site_url()?>/child/create/<?php echo $userId ?>'>
+<form class='form' method='post' action='<?php echo site_url()?>/child/create/<?php echo $userId ?>'>
 	<div>
 
 		<label for="name">Prenom</label>

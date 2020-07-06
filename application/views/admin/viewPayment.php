@@ -23,9 +23,12 @@
 		<br>
 		<?php foreach ($users as $user) { //User row title 
 		echo "<h4>\n".$user['user_name'];
-			echo "<a class='button' href='".site_url()."/report/paymentHistory/".$user['id']."/$year/$month'>Voir l'historique</a>";
+			echo "<a class='button' href='".site_url()."/payment/userPaymentHistory/".$user['id']."/$year/$month'>Voir l'historique</a>";
 			echo "</h4>\n";
 			$userId = $user["id"];
+			$payments = $userMoneyStatus[$userId]["payments"];
+			$bill = $userMoneyStatus[$userId]["bill"];
+			$totalPayments = $userMoneyStatus[$userId]["totalPayments"];
 ?>
 			<table border=1>
 			<tr>
@@ -46,8 +49,7 @@
 			</tr>
 			<?php
 			$row=0;
-			
-			foreach ($payments[$userId] as $curPayment) {
+			foreach ($payments as $curPayment) {
 				if ($curPayment['status']==1) {
 					$status = "En attente de r&eacute;ception";
 				} else if ($curPayment['status']==2) {
@@ -61,10 +63,10 @@
 				}
 				echo "<tr>";
 				if ($row==0) {
-					echo "<td rowspan=".sizeof($curPayment).">".$bill[$userId]['restToPay']."</td>		
-   						<td rowspan=".sizeof($curPayment).">".$bill[$userId]['children']['total']['costDep']."</td>		
-   						<td rowspan=".sizeof($curPayment).">".$bill[$userId]['children']['total']['costResa']."</td>		
-   						<td rowspan=".sizeof($curPayment)."><b>".$bill[$userId]['total']."</b></td>		
+					echo "<td rowspan=".sizeof($curPayment).">".$bill['balanceM2']."</td>		
+   						<td rowspan=".sizeof($curPayment).">".$bill['children']['total']['costDep']."</td>		
+   						<td rowspan=".sizeof($curPayment).">".$bill['children']['total']['costResa']."</td>		
+   						<td rowspan=".sizeof($curPayment)."><b>".$bill['total']."</b></td>		
    						<td rowspan=".sizeof($curPayment).">&nbsp;</td>";
 				}
 				
@@ -87,7 +89,7 @@
 				}
 				echo "<td>&nbsp;</td>";
 				if ($row==0) {
-					$solde = $bill[$userId]['total'] - $totalPayments[$userId];
+					$solde = $bill['total'] - $totalPayments;
 					echo "<td rowspan=".sizeof($curPayment)."><b>".$solde."</b></td>";
 				}
 				echo "</tr>";
